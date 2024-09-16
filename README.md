@@ -9,7 +9,9 @@ Unofficial HuggingChat Python API, extensible for chatbots etc.
 [![DownloadsPW](https://img.shields.io/pypi/dw/hugchat?logo=download&logoColor=white)](https://pypi.python.org/pypi/hugchat)
 [![Status](https://img.shields.io/badge/status-operational-%234ea94b.svg?logo=ok&logoColor=white)](https://pypi.python.org/pypi/hugchat)
 [![Downloads](https://static.pepy.tech/badge/hugchat?logo=download&logoColor=white)](https://www.pepy.tech/projects/hugchat)
-
+<a href="https://discord.gg/gq8kvUPe" target="_blank">
+        <img src="https://img.shields.io/discord/1248603579527331860?logo=discord&labelColor=%20%235462eb&logoColor=%20%23f5f5f5&color=%20%235462eb"
+            alt="chat on Discord"></a>
 
 > **Note**
 >
@@ -49,9 +51,14 @@ cookies = sign.login(cookie_dir_path=cookie_path_dir, save_cookies=True)
 # Create your ChatBot
 chatbot = hugchat.ChatBot(cookies=cookies.get_dict())  # or cookie_path="usercookies/<email>.json"
 
-# Non stream response
-query_result = chatbot.chat("Hi!")
-print(query_result) # or query_result.text or query_result["text"]
+message_result = chatbot.chat("Hi!") # note: message_result is a generator, the method will return immediately.
+
+# Non stream
+message_str: str = message_result.wait_until_done() # you can also print(message_result) directly. 
+# get files(such as images)
+file_list = message_result.get_files_created() # must call wait_until_done() first!
+
+# tips: model "CohereForAI/c4ai-command-r-plus" can generate images :)
 
 # Stream response
 for resp in chatbot.query(
@@ -60,7 +67,7 @@ for resp in chatbot.query(
 ):
     print(resp)
 
-# Web search (new feature)
+# Web search
 query_result = chatbot.query("Hi!", web_search=True)
 print(query_result)
 for source in query_result.web_search_sources:
@@ -96,12 +103,6 @@ chatbot.new_conversation(assistant=assistant, switch_to=True) # create a new con
 chatbot.delete_all_conversations()
 ```
 
-The `query()` function receives these parameters:
-
-- `text`: Required[str].
-- `retry_count`: Optional[int]. Number of retries for requesting huggingchat. Default is 5
-- `web_search` : Optional[bool]. Whether to use online search.
-
 ### CLI
 
 > `version 0.0.5.2` or newer
@@ -122,18 +123,19 @@ CLI params:
 Commands in cli mode:
 
 - `/new` : Create and switch to a new conversation.
-- `/ids` : Shows a list of all ID numbers and ID strings in current session.
-- `/switch <id>` : Switches to the ID number or ID string passed.
-- `/del <id>` : Deletes the ID number or ID string passed. Will not delete active session.
+- `/ids` : Shows a list of all ID numbers and ID strings in *current session*.
+- `/switch` : Shows a list of all conversations' info in *current session*. Then you can choose one to switch to.
+- `/switch all` : Shows a list of all conversations' info in *your account*. Then you can choose one to switch to. (not recommended if your account has a lot of conversations)
+- `/del <index>` : Deletes the conversation linked with the index passed. Will not delete active session.
 - `/delete-all` : Deletes all the conversations for the logged in user.
 - `/clear` : Clear the terminal.
 - `/llm` : Get available models you can switch to.
 - `/llm <index>` : Switches model to given model index based on `/llm`.
-- `/sharewithauthor <on|off>` : Changes settings for sharing data with model author. On by default.
+- `/share` : Toggles settings for sharing data with model author. On by default.
 - `/exit` : Closes CLI environment.
-- `/stream <on|off>`: streaming the response.
-- `/web <on|off>`: web search.
-- `/web-hint <on|off>`: display web search hint.
+- `/stream` : Toggles streaming the response.
+- `/web` : Toggles web search.
+- `/web-hint` : Toggles display web search hint.
 
 - AI is an area of active research with known problems such as biased generation and misinformation. Do not use this application for high-stakes decisions or advice.
 - Server resources are precious, it is not recommended to request this API in a high frequency.

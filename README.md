@@ -27,6 +27,8 @@ Unofficial HuggingChat Python API, extensible for chatbots etc.
 pip3 install hugchat
 ```
 
+
+
 ## Usage
 
 ### API
